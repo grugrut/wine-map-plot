@@ -1,0 +1,16 @@
+html,
+body {
+    height: 100%;
+}
+
+nav.navbar{
+    background: #80273F;
+}
+
+a.navbar-brand {
+    color: #FFFFFF;
+}
+
+div#map {
+    height: 640px;
+}

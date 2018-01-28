@@ -1,0 +1,13 @@
+indexes:
+
+- kind: Winery
+  properties:
+  - name: name
+- kind: Winery
+  properties:
+  - name: name_ja
+- kind: Winery
+  properties:
+  - name: longtitude
+  - name: latitude
+

@@ -1,8 +1,10 @@
 package wineMap
 
 import (
+	"github.com/grugrut/wine-map-plot/src/model"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
 	"html/template"
-	"model"
 	"net/http"
 	"strconv"
 )
@@ -18,24 +20,29 @@ func root(w http.ResponseWriter, r *http.Request) {
 }
 
 func add(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
 	switch r.Method {
 	case http.MethodGet:
 		q := r.URL.Query()
 		if q.Get("lat") == "" {
+			log.Warningf(ctx, "Lat is null, %v", q.Get("lat"))
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
 		lat, err := strconv.ParseFloat(q.Get("lat"), 32)
 		if err != nil {
+			log.Errorf(ctx, err.Error())
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
 		if q.Get("lng") == "" {
+			log.Warningf(ctx, "Lng is null, %v", q.Get("lng"))
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
 		lng, err := strconv.ParseFloat(q.Get("lng"), 32)
 		if err != nil {
+			log.Errorf(ctx, err.Error())
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
@@ -48,16 +55,19 @@ func add(w http.ResponseWriter, r *http.Request) {
 		latS := r.FormValue("wineryLat")
 		lngS := r.FormValue("wineryLng")
 		if name == "" || nameJa == "" || latS == "" || lngS == "" {
+			log.Errorf(ctx, "name:%v, nameJa:%v, latS:%v, lngS:%v", name, nameJa, latS, lngS)
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
 		lat, err := strconv.ParseFloat(latS, 64)
 		if err != nil {
+			log.Errorf(ctx, err.Error())
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
 		lng, err := strconv.ParseFloat(lngS, 64)
 		if err != nil {
+			log.Errorf(ctx, err.Error())
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
@@ -68,10 +78,12 @@ func add(w http.ResponseWriter, r *http.Request) {
 			Latitude:  lat,
 			Longitude: lng,
 		}
-		model.AddWinery(r.Context(), winery)
+		_, err = model.AddWinery(ctx, winery)
+		if err != nil {
+			log.Errorf(ctx, err.Error())
+		}
 		http.Redirect(w, r, "/", http.StatusFound)
 	default:
-
-		http.Redirect(w, r, "/", 500)
+		http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
 	}
 }

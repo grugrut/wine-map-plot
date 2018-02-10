@@ -13,6 +13,10 @@ func init() {
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
+	<<<<<<< HEAD
+	=======
+		tmpl := template.Must(template.ParseFiles("template/main.html"))
+	>>>>>>> 8e6c8d39d7df8cd46008096b0e34b46736623cfa
 	tmpl := template.Must(template.ParseFiles("template/base.html", "template/main.html"))
 	tmpl.Execute(w, nil)
 }

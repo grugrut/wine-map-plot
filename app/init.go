@@ -1,10 +1,13 @@
 package wineMap
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/grugrut/wine-map-plot/src/model"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/user"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -23,6 +26,12 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 func add(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
+	u := needLogin(ctx)
+	if u == nil || !user.IsAdmin(ctx) {
+		url, _ := user.LoginURL(ctx, "/")
+		fmt.Fprintf(w, `<a href="%s">Sign in or register</a>`, url)
+		return
+	}
 	log.Infof(ctx, "method: %v, path: %v", r.Method, r.URL.Path)
 	switch r.Method {
 	case http.MethodGet:
@@ -113,4 +122,9 @@ func api(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
 	}
+}
+
+func needLogin(ctx context.Context) *user.User {
+	u := user.Current(ctx)
+	return u
 }

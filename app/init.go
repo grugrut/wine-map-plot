@@ -1,6 +1,7 @@
 package wineMap
 
 import (
+	"encoding/json"
 	"github.com/grugrut/wine-map-plot/src/model"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
@@ -12,6 +13,7 @@ import (
 func init() {
 	http.HandleFunc("/", root)
 	http.HandleFunc("/add", add)
+	http.HandleFunc("/api/", api)
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
@@ -21,6 +23,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 func add(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
+	log.Infof(ctx, "method: %v, path: %v", r.Method, r.URL.Path)
 	switch r.Method {
 	case http.MethodGet:
 		q := r.URL.Query()
@@ -56,19 +59,19 @@ func add(w http.ResponseWriter, r *http.Request) {
 		lngS := r.FormValue("wineryLng")
 		if name == "" || nameJa == "" || latS == "" || lngS == "" {
 			log.Errorf(ctx, "name:%v, nameJa:%v, latS:%v, lngS:%v", name, nameJa, latS, lngS)
-			http.Redirect(w, r, "/", http.StatusFound)
+			http.Redirect(w, r, "/", http.StatusOK)
 			return
 		}
 		lat, err := strconv.ParseFloat(latS, 64)
 		if err != nil {
 			log.Errorf(ctx, err.Error())
-			http.Redirect(w, r, "/", http.StatusFound)
+			http.Redirect(w, r, "/", http.StatusOK)
 			return
 		}
 		lng, err := strconv.ParseFloat(lngS, 64)
 		if err != nil {
 			log.Errorf(ctx, err.Error())
-			http.Redirect(w, r, "/", http.StatusFound)
+			http.Redirect(w, r, "/", http.StatusOK)
 			return
 		}
 
@@ -82,7 +85,31 @@ func add(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Errorf(ctx, err.Error())
 		}
-		http.Redirect(w, r, "/", http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusOK)
+	default:
+		http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
+	}
+}
+
+func api(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	log.Infof(ctx, "method: %v, path: %v", r.Method, r.URL.Path)
+	switch r.Method {
+	case http.MethodGet:
+		switch r.URL.Path {
+		case "/api/fetch":
+			wineries, err := model.FetchAllWinery(ctx)
+			if err != nil {
+				log.Errorf(ctx, err.Error())
+				http.Redirect(w, r, "/", http.StatusBadRequest)
+			}
+			result, err := json.Marshal(wineries)
+			if err != nil {
+				log.Errorf(ctx, err.Error())
+				http.Redirect(w, r, "/", http.StatusBadRequest)
+			}
+			w.Write(result)
+		}
 	default:
 		http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
 	}

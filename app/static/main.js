@@ -15,3 +15,16 @@ function onMapClick(e) {
         .openOn(map);
 }
 map.on('click', onMapClick);
+
+var req = new XMLHttpRequest();
+req.onreadystatechange = function() {
+    if (req.readyState == 4 && req.status == 200) {
+        var wineries = JSON.parse(req.responseText);
+        for (var winery of wineries) {
+            var marker = L.marker([winery['Latitude'], winery['Longitude']]).addTo(map);
+            marker.bindPopup(winery['Name']+'<br>'+winery['NameJa']);
+        }
+    }
+};
+req.open('GET', 'http://localhost:8080/api/fetch');
+req.send(null);

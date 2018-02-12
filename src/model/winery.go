@@ -19,6 +19,6 @@ func AddWinery(ctx context.Context, winery Winery) (*datastore.Key, error) {
 
 func FetchAllWinery(ctx context.Context) ([]Winery, error) {
 	var wineries []Winery
-	_, err := datastore.NewQuery("Winery").GetAll(ctx, wineries)
+	_, err := datastore.NewQuery("Winery").GetAll(ctx, &wineries)
 	return wineries, err
 }

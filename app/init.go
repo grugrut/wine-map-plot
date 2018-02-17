@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/grugrut/wine-map-plot/src/model"
+	"github.com/grugrut/wine-map-plot/model"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/user"
@@ -20,7 +20,7 @@ func init() {
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("template/base.html", "template/main.html"))
+	tmpl := template.Must(template.ParseFiles("view/base.html", "view/main.html"))
 	tmpl.Execute(w, nil)
 }
 
@@ -59,7 +59,7 @@ func add(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		latlng := []float64{lat, lng}
-		tmpl := template.Must(template.ParseFiles("template/base.html", "template/add.html"))
+		tmpl := template.Must(template.ParseFiles("view/base.html", "view/add.html"))
 		tmpl.Execute(w, latlng)
 	case http.MethodPost:
 		name := r.FormValue("wineryName")
